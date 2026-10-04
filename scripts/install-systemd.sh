@@ -6,7 +6,7 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+repo=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd -P)
 binary=${BINARY:-$repo/bin/light-proxy}
 config=${CONFIG:-$repo/config.toml}
 
