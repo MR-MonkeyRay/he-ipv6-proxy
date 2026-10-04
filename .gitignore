@@ -1,0 +1,19 @@
+# Build outputs
+/light-proxy
+/bin/
+*.test
+*.out
+coverage.*
+
+# Local runtime configuration and artifacts
+/config.toml
+/temp/config.toml
+/temp/config.smoke.toml
+/temp/light-proxy
+/temp/log/
+*.log
+
+# Editor and OS metadata
+.DS_Store
+.idea/
+.vscode/
