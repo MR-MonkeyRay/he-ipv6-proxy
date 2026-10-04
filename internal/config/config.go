@@ -1,4 +1,4 @@
-// Package config loads and validates the light-proxy TOML configuration.
+// Package config loads and validates the he-ipv6-proxy TOML configuration.
 package config
 
 import (
@@ -112,23 +112,23 @@ func Default() *Config {
 			TTL:           Duration(24 * time.Hour),
 			SweepInterval: Duration(5 * time.Minute),
 		},
-		Log:     LogConfig{Level: "info", Dir: "log", File: "light-proxy.log"},
+		Log:     LogConfig{Level: "info", Dir: "log", File: "he-ipv6-proxy.log"},
 		Runtime: RuntimeConfig{SelfCheck: true},
 	}
 }
 
 // Load reads the TOML file at path over the documented defaults and applies the
-// LIGHTPROXY_AUTH_USER / LIGHTPROXY_AUTH_PASS environment overrides (only when
-// the variable is non-empty). It does not validate; call Validate for that.
+// HE_IPV6_PROXY_AUTH_USER / HE_IPV6_PROXY_AUTH_PASS environment overrides (only
+// when the variable is non-empty). It does not validate; call Validate for that.
 func Load(path string) (*Config, error) {
 	cfg := Default()
 	if _, err := toml.DecodeFile(path, cfg); err != nil {
 		return nil, err
 	}
-	if v := os.Getenv("LIGHTPROXY_AUTH_USER"); v != "" {
+	if v := os.Getenv("HE_IPV6_PROXY_AUTH_USER"); v != "" {
 		cfg.Auth.User = v
 	}
-	if v := os.Getenv("LIGHTPROXY_AUTH_PASS"); v != "" {
+	if v := os.Getenv("HE_IPV6_PROXY_AUTH_PASS"); v != "" {
 		cfg.Auth.Pass = v
 	}
 	return cfg, nil
@@ -184,10 +184,10 @@ func (c *Config) Validate() error {
 
 	if c.Auth.Enabled {
 		if c.Auth.User == "" {
-			return fmt.Errorf("auth.enabled is true but auth.user is empty (set it in the config or LIGHTPROXY_AUTH_USER)")
+			return fmt.Errorf("auth.enabled is true but auth.user is empty (set it in the config or HE_IPV6_PROXY_AUTH_USER)")
 		}
 		if c.Auth.Pass == "" {
-			return fmt.Errorf("auth.enabled is true but auth.pass is empty (set it in the config or LIGHTPROXY_AUTH_PASS)")
+			return fmt.Errorf("auth.enabled is true but auth.pass is empty (set it in the config or HE_IPV6_PROXY_AUTH_PASS)")
 		}
 	}
 

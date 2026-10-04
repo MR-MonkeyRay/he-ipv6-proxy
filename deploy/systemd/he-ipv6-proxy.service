@@ -1,16 +1,16 @@
 [Unit]
-Description=light-proxy IPv6 source-rotating forward proxy
+Description=he-ipv6-proxy IPv6 source-rotating forward proxy
 Documentation=https://github.com/MR-MonkeyRay/he-ipv6-proxy
-After=network-online.target light-proxy-envsetup.service
+After=network-online.target he-ipv6-proxy-envsetup.service
 Wants=network-online.target
-Requires=light-proxy-envsetup.service
+Requires=he-ipv6-proxy-envsetup.service
 
 [Service]
-ExecStart=/usr/local/bin/light-proxy run -c /etc/light-proxy.toml
-EnvironmentFile=-/etc/light-proxy.env
-User=light-proxy
-WorkingDirectory=/var/lib/light-proxy
-ReadWritePaths=/var/lib/light-proxy/log
+ExecStart=/usr/local/bin/he-ipv6-proxy run -c /etc/he-ipv6-proxy.toml
+EnvironmentFile=-/etc/he-ipv6-proxy.env
+User=he-ipv6-proxy
+WorkingDirectory=/var/lib/he-ipv6-proxy
+ReadWritePaths=/var/lib/he-ipv6-proxy/log
 NoNewPrivileges=yes
 CapabilityBoundingSet=
 AmbientCapabilities=

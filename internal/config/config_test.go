@@ -95,8 +95,8 @@ func TestValidateAuthRequiresCredentials(t *testing.T) {
 }
 
 func TestEnvOverridesSecrets(t *testing.T) {
-	t.Setenv("LIGHTPROXY_AUTH_USER", "bob")
-	t.Setenv("LIGHTPROXY_AUTH_PASS", "envpass")
+	t.Setenv("HE_IPV6_PROXY_AUTH_USER", "bob")
+	t.Setenv("HE_IPV6_PROXY_AUTH_PASS", "envpass")
 	cfg, err := Load(writeTemp(t, validTOML))
 	if err != nil {
 		t.Fatal(err)
@@ -106,8 +106,8 @@ func TestEnvOverridesSecrets(t *testing.T) {
 	}
 
 	// Empty env vars must leave the file values intact.
-	t.Setenv("LIGHTPROXY_AUTH_USER", "")
-	t.Setenv("LIGHTPROXY_AUTH_PASS", "")
+	t.Setenv("HE_IPV6_PROXY_AUTH_USER", "")
+	t.Setenv("HE_IPV6_PROXY_AUTH_PASS", "")
 	cfg, err = Load(writeTemp(t, validTOML))
 	if err != nil {
 		t.Fatal(err)
@@ -124,7 +124,7 @@ func TestLogFileDefaultsAndValidation(t *testing.T) {
 	if err := cfg.Validate(); err != nil {
 		t.Fatalf("Validate: %v", err)
 	}
-	if got, want := cfg.Log.Path(), filepath.Join("log", "light-proxy.log"); got != want {
+	if got, want := cfg.Log.Path(), filepath.Join("log", "he-ipv6-proxy.log"); got != want {
 		t.Errorf("default log path = %q, want %q", got, want)
 	}
 

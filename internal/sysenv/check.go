@@ -1,4 +1,4 @@
-// Package sysenv probes and prepares the guest environment light-proxy needs:
+// Package sysenv probes and prepares the guest environment he-ipv6-proxy needs:
 // unprivileged source binding (IPV6_FREEBIND) and the AnyIP local route for the
 // pool.
 package sysenv
@@ -81,7 +81,7 @@ const (
 		"should always succeed on Linux, so a failure means the kernel or a container security\n" +
 		"profile blocks setsockopt(IPV6_FREEBIND)."
 
-	routeFix = "sudo light-proxy env-setup -c <config>\n" +
+	routeFix = "sudo he-ipv6-proxy env-setup -c <config>\n" +
 		"or directly: ip -6 route add local <pool> dev lo"
 )
 

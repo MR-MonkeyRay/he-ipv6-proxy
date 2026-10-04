@@ -8,7 +8,7 @@
 - **纯透传**:不添加 `Via` / `X-Forwarded-*` / 默认 Go `User-Agent`,客户端的 `Proxy-Authorization` 不会到达上游。
 - **明文 HTTP + CONNECT 隧道**:`http://` 绝对形式请求经 `httputil.ReverseProxy` 转发;`CONNECT` 建立后只做字节透传(TLS 端到端,代理不解析隧道内任何字节,也不做中间人)。目标无 AAAA 记录返回 `502`(纯 IPv6 出站,不回退 IPv4)。
 - **单依赖** `BurntSushi/toml`,静态二进制;去重状态仅存内存,重启即清空(数据非关键)。
-- **请求日志**:每个请求一行(客户端、方法、目标、状态码、字节数、**轮换源地址**、耗时),同时写 stdout 与配置文件里的本地文件(默认 `log/light-proxy.log`);见[请求日志](#请求日志)。
+- **请求日志**:每个请求一行(客户端、方法、目标、状态码、字节数、**轮换源地址**、耗时),同时写 stdout 与配置文件里的本地文件(默认 `log/he-ipv6-proxy.log`);见[请求日志](#请求日志)。
 - `doctor` 逐项探测前置条件并打印可直接执行的修复命令;`run` 启动前 fail-fast 自检。
 
 ## 构建
@@ -19,15 +19,15 @@
 make build
 ```
 
-生成的静态二进制位于 `bin/light-proxy`。
+生成的静态二进制位于 `bin/he-ipv6-proxy`。
 
 ## 快速开始
 
 ```sh
 cp config.example.toml config.toml              # 至少修改 network.ipv6_pool 与 auth.*
-sudo bin/light-proxy env-setup -c config.toml   # 应用客户机内 AnyIP 路由(幂等)
-bin/light-proxy doctor -c config.toml           # 全绿后再启动
-bin/light-proxy run -c config.toml
+sudo bin/he-ipv6-proxy env-setup -c config.toml   # 应用客户机内 AnyIP 路由(幂等)
+bin/he-ipv6-proxy doctor -c config.toml           # 全绿后再启动
+bin/he-ipv6-proxy run -c config.toml
 ```
 
 ## 前置条件
@@ -56,9 +56,9 @@ IPv6 没有 `rp_filter`,无需关闭任何东西。
 
 ```sh
 # 容器内
-sudo light-proxy env-setup -c /etc/light-proxy.toml
+sudo he-ipv6-proxy env-setup -c /etc/he-ipv6-proxy.toml
 ip -6 addr show scope link                  # 取链路本地地址,交给宿主机
-light-proxy doctor -c /etc/light-proxy.toml
+he-ipv6-proxy doctor -c /etc/he-ipv6-proxy.toml
 
 # 宿主机(LXC host)
 ip -6 route add <pool>/64 via <容器链路本地地址> dev <host-veth>
@@ -93,7 +93,7 @@ virsh attach-interface <domain> --type bridge --source br0 --model virtio --conf
 
 ```sh
 sysctl -w net.ipv6.conf.all.forwarding=1
-echo 'net.ipv6.conf.all.forwarding=1' > /etc/sysctl.d/99-light-proxy.conf   # 持久化
+echo 'net.ipv6.conf.all.forwarding=1' > /etc/sysctl.d/99-he-ipv6-proxy.conf   # 持久化
 ```
 
 转发关闭时,即使路由正确,`doctor` 的实拨探测也是 `i/o timeout`(与缺路由症状相同)。另外开启转发会把 `accept_ra` 从默认的 1 降为 0;hypervisor 上行靠 SLAAC 取地址时需 `net.ipv6.conf.<上行口>.accept_ra=2`。
@@ -118,9 +118,9 @@ ip -6 neigh show dev br0             # 出现客户机链路本地地址 = 二�
 ### 5. 持久化宿主机路由
 
 ```ini
-# /etc/systemd/system/light-proxy-pool-route.service
+# /etc/systemd/system/he-ipv6-proxy-pool-route.service
 [Unit]
-Description=Route the light-proxy pool /64 to the guest
+Description=Route the he-ipv6-proxy pool /64 to the guest
 After=network-online.target libvirtd.service
 Wants=network-online.target
 
@@ -142,30 +142,30 @@ WantedBy=multi-user.target
 
 | 内容 | 安装路径 |
 | --- | --- |
-| 二进制 | `/usr/local/bin/light-proxy` |
-| 配置 | `/etc/light-proxy.toml` |
-| 可选凭据环境文件 | `/etc/light-proxy.env` |
-| 工作及日志目录 | `/var/lib/light-proxy` |
+| 二进制 | `/usr/local/bin/he-ipv6-proxy` |
+| 配置 | `/etc/he-ipv6-proxy.toml` |
+| 可选凭据环境文件 | `/etc/he-ipv6-proxy.env` |
+| 工作及日志目录 | `/var/lib/he-ipv6-proxy` |
 
 ```sh
 cp config.example.toml config.toml
-# 编辑 config.toml；如需把凭据移出配置，可在安装后创建 /etc/light-proxy.env
+# 编辑 config.toml；如需把凭据移出配置，可在安装后创建 /etc/he-ipv6-proxy.env
 make build
 sudo scripts/install-systemd.sh
 ```
 
-安装脚本创建无登录用户 `light-proxy`，安装并启动 `light-proxy-envsetup.service` 与 `light-proxy.service`。代理本身无特权；只有一次性的 `env-setup` unit 以 root 身份恢复 AnyIP local 路由。
+安装脚本创建无登录用户 `he-ipv6-proxy`，安装并启动 `he-ipv6-proxy-envsetup.service` 与 `he-ipv6-proxy.service`。代理本身无特权；只有一次性的 `env-setup` unit 以 root 身份恢复 AnyIP local 路由。
 
 凭据环境文件示例（权限应为 `0600`）：
 
 ```sh
-LIGHTPROXY_AUTH_USER=alice
-LIGHTPROXY_AUTH_PASS=s3cret
+HE_IPV6_PROXY_AUTH_USER=alice
+HE_IPV6_PROXY_AUTH_PASS=s3cret
 ```
 
 使用 Hurricane Electric 6in4 时，先复制并填写 `deploy/systemd/he-ipv6.service.in` 的三个占位符，再将结果安装为 `/etc/systemd/system/he-ipv6.service`。该模板不包含机器地址；应用 unit 也不强制依赖特定隧道实现。
 
-`ProtectSystem=strict` 下日志目录必须预先存在且归 `light-proxy` 所有；安装脚本会创建 `/var/lib/light-proxy/log`。
+`ProtectSystem=strict` 下日志目录必须预先存在且归 `he-ipv6-proxy` 所有；安装脚本会创建 `/var/lib/he-ipv6-proxy/log`。
 
 部署前也可运行 `sudo scripts/verify-egress.sh [config] [binary]`，它只执行 `env-setup` 和 `doctor`，不保存本机配置或凭据。
 
@@ -211,11 +211,11 @@ netplan:`ethernets.<id>.routes: [{to: "2001:db8:abcd::/64", type: local}]`。
 | `dedup.sweep_interval` | `5m` | 过期条目清理间隔 |
 | `log.level` | `info` | `info`/`debug`;`debug` 额外打印每个连接的源地址 |
 | `log.dir` | `log` | 日志目录,相对工作目录;置空即关闭文件日志 |
-| `log.file` | `light-proxy.log` | 日志文件名(只能是文件名,目录用 `log.dir`);置空即关闭文件日志 |
+| `log.file` | `he-ipv6-proxy.log` | 日志文件名(只能是文件名,目录用 `log.dir`);置空即关闭文件日志 |
 | `runtime.selfcheck` | `true` | `run` 启动前做前置自检 |
 | `doctor.test_target` | 空 | 可选 IPv6 TCP 目标,用于 `doctor` 实拨验证回程;**IPv6 要带方括号**,如 `"[2001:db8::1]:80"` |
 
-密钥可用 `LIGHTPROXY_AUTH_USER` / `LIGHTPROXY_AUTH_PASS` 覆盖(非空时生效),便于把凭据放在环境里。
+密钥可用 `HE_IPV6_PROXY_AUTH_USER` / `HE_IPV6_PROXY_AUTH_PASS` 覆盖(非空时生效),便于把凭据放在环境里。
 
 ## 验证
 
@@ -231,7 +231,7 @@ curl -s -o /dev/null -w '%{http_code}\n' -x http://alice:s3cret@<ipv4>:28888 htt
 
 `curl -v` 里应看到 `CONNECT <host>:443` 后紧跟 `HTTP/1.1 200 Connection Established`;隧道建立后 `%{http_code}` 是目标站点的状态码(`000` 说明隧道没建立,退出码 56)。
 
-`doctor.test_target` 指向可达的 IPv6 `host:port` 后,`light-proxy doctor` 的实拨探测可一次性验证绑定、客户机内路由、宿主机回程路由。
+`doctor.test_target` 指向可达的 IPv6 `host:port` 后,`he-ipv6-proxy doctor` 的实拨探测可一次性验证绑定、客户机内路由、宿主机回程路由。
 
 宿主机侧自查:
 
@@ -245,8 +245,8 @@ ip -6 neigh show dev br0            # 客户机链路本地地址
 请求日志(每个请求一行,`src=` 就是本次的轮换源地址):
 
 ```sh
-tail -n 5 log/light-proxy.log
-sed -n '/msg=request/p' log/light-proxy.log | sed -n '$p'
+tail -n 5 log/he-ipv6-proxy.log
+sed -n '/msg=request/p' log/he-ipv6-proxy.log | sed -n '$p'
 ```
 
 ## 排错
@@ -270,7 +270,7 @@ sed -n '/msg=request/p' log/light-proxy.log | sed -n '$p'
 
 ## 请求日志
 
-每个请求一行(`slog` text),**同时**写 stdout 与 `<log.dir>/<log.file>`(默认 `log/light-proxy.log`,相对工作目录):
+每个请求一行(`slog` text),**同时**写 stdout 与 `<log.dir>/<log.file>`(默认 `log/he-ipv6-proxy.log`,相对工作目录):
 
 ```
 time=2026-09-18T15:58:10Z level=INFO msg=request client=127.0.0.1:10206 method=GET target=api6.ipify.org path=/ status=200 bytes=34 src=2001:db8:abcd:0:b343:fa75:f465:428d dur=262.8ms
@@ -292,7 +292,7 @@ time=2026-09-18T15:58:10Z level=INFO msg=connect client=127.0.0.1:10208 target=a
 - 隧道行在**隧道关闭时**才写出,长连接(WebSocket、连接池复用)期间不会提前落盘。
 - 轮转:日志文件无限增长,自己配 logrotate(或 `mv` 后发 HUP,进程会重新打开文件,无需重启):
   ```sh
-  systemctl kill -s HUP light-proxy.service     # 重新打开 log/light-proxy.log
+  systemctl kill -s HUP he-ipv6-proxy.service     # 重新打开 log/he-ipv6-proxy.log
   ```
   未配置文件日志时 SIGHUP 保持默认行为(终止进程),不会被吞掉。
 - 日志目录不可创建/不可写时启动即失败并返回退出码 2(与配置错误同类,unit 的 `RestartPreventExitStatus=2 3` 不会热循环)。

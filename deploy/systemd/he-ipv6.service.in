@@ -1,9 +1,9 @@
 [Unit]
-Description=HE 6in4 tunnel for light-proxy IPv6 egress
+Description=HE 6in4 tunnel for he-ipv6-proxy IPv6 egress
 Documentation=https://tunnelbroker.net/
 After=network-online.target systemd-networkd.service
 Wants=network-online.target
-Before=light-proxy-envsetup.service light-proxy.service
+Before=he-ipv6-proxy-envsetup.service he-ipv6-proxy.service
 
 [Service]
 Type=oneshot

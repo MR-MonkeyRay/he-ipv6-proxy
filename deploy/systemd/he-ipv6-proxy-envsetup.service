@@ -1,0 +1,15 @@
+[Unit]
+Description=he-ipv6-proxy AnyIP local route for the egress pool
+Documentation=https://github.com/MR-MonkeyRay/he-ipv6-proxy
+After=network-online.target
+Wants=network-online.target
+Before=he-ipv6-proxy.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=-/etc/he-ipv6-proxy.env
+ExecStart=/usr/local/bin/he-ipv6-proxy env-setup -c /etc/he-ipv6-proxy.toml
+
+[Install]
+WantedBy=multi-user.target

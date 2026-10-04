@@ -1,7 +1,7 @@
 # Build outputs
 /bin/
 /dist/
-/light-proxy
+/he-ipv6-proxy
 *.test
 *.out
 coverage.*

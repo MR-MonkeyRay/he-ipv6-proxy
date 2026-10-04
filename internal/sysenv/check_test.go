@@ -43,13 +43,13 @@ func TestProbesErr(t *testing.T) {
 		t.Fatalf("all-passing probes returned %v", err)
 	}
 
-	bad := append(ok, Probe{Name: "route", Reason: "missing", Fix: "ip -6 route add local 2001:db8::/64 dev lo\nsudo light-proxy env-setup"})
+	bad := append(ok, Probe{Name: "route", Reason: "missing", Fix: "ip -6 route add local 2001:db8::/64 dev lo\nsudo he-ipv6-proxy env-setup"})
 	err := bad.Err()
 	if err == nil {
 		t.Fatal("failing probe set returned nil")
 	}
 	msg := err.Error()
-	for _, want := range []string{"route", "missing", "ip -6 route add local 2001:db8::/64 dev lo", "sudo light-proxy env-setup"} {
+	for _, want := range []string{"route", "missing", "ip -6 route add local 2001:db8::/64 dev lo", "sudo he-ipv6-proxy env-setup"} {
 		if !strings.Contains(msg, want) {
 			t.Errorf("error %q missing %q", msg, want)
 		}

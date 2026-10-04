@@ -17,7 +17,7 @@ import (
 // inside the guest's network namespace.
 func EnvSetup(ctx context.Context, cfg *config.Config, log *slog.Logger) error {
 	if os.Geteuid() != 0 {
-		return errors.New("env-setup must run as root: sudo light-proxy env-setup -c <config>")
+		return errors.New("env-setup must run as root: sudo he-ipv6-proxy env-setup -c <config>")
 	}
 	pool := cfg.Pool()
 

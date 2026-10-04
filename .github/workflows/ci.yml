@@ -63,12 +63,12 @@ jobs:
           CGO_ENABLED: "0"
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-        run: go build -trimpath -o light-proxy-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/light-proxy
+        run: go build -trimpath -o he-ipv6-proxy-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/he-ipv6-proxy
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: light-proxy-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: light-proxy-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: he-ipv6-proxy-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: he-ipv6-proxy-${{ matrix.goos }}-${{ matrix.goarch }}
           if-no-files-found: error
           retention-days: 7

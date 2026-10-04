@@ -1,4 +1,4 @@
-// Package proxy implements the light-proxy HTTP handler: a forward proxy
+// Package proxy implements the he-ipv6-proxy HTTP handler: a forward proxy
 // (absolute-form plain HTTP plus CONNECT tunnels) that is a pure passthrough
 // and adds no identifying headers.
 package proxy
@@ -115,7 +115,7 @@ func (p *Proxy) requireAuth(w http.ResponseWriter, r *http.Request) bool {
 	if p.auth.check(r) {
 		return true
 	}
-	w.Header().Set("Proxy-Authenticate", `Basic realm="light-proxy"`)
+	w.Header().Set("Proxy-Authenticate", `Basic realm="he-ipv6-proxy"`)
 	http.Error(w, "proxy authentication required", http.StatusProxyAuthRequired)
 	return false
 }

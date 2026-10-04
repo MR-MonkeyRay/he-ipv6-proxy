@@ -1,12 +1,12 @@
 GO ?= go
-BINARY := bin/light-proxy
+BINARY := bin/he-ipv6-proxy
 
 .PHONY: all build test vet check clean
 
 all: check build
 
 build:
-	CGO_ENABLED=0 $(GO) build -trimpath -o $(BINARY) ./cmd/light-proxy
+	CGO_ENABLED=0 $(GO) build -trimpath -o $(BINARY) ./cmd/he-ipv6-proxy
 
 test:
 	$(GO) test ./...

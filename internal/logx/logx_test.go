@@ -20,7 +20,7 @@ func readFile(t *testing.T, path string) string {
 
 func TestWritesToConfiguredFile(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "nested", "log")
-	sink, err := Open(config.LogConfig{Level: "info", Dir: dir, File: "light-proxy.log"})
+	sink, err := Open(config.LogConfig{Level: "info", Dir: dir, File: "he-ipv6-proxy.log"})
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
@@ -30,7 +30,7 @@ func TestWritesToConfiguredFile(t *testing.T) {
 		t.Fatalf("Close: %v", err)
 	}
 
-	if want := filepath.Join(dir, "light-proxy.log"); sink.Path() != want {
+	if want := filepath.Join(dir, "he-ipv6-proxy.log"); sink.Path() != want {
 		t.Errorf("Path() = %q, want %q", sink.Path(), want)
 	}
 	got := readFile(t, sink.Path())
@@ -44,7 +44,7 @@ func TestWritesToConfiguredFile(t *testing.T) {
 
 func TestReopenWritesToTheNewFile(t *testing.T) {
 	dir := t.TempDir()
-	cfg := config.LogConfig{Level: "info", Dir: dir, File: "light-proxy.log"}
+	cfg := config.LogConfig{Level: "info", Dir: dir, File: "he-ipv6-proxy.log"}
 	sink, err := Open(cfg)
 	if err != nil {
 		t.Fatalf("Open: %v", err)
@@ -53,7 +53,7 @@ func TestReopenWritesToTheNewFile(t *testing.T) {
 	sink.Logger().Info("before rotation")
 
 	// What logrotate does between its two moves.
-	rotated := filepath.Join(dir, "light-proxy.log.1")
+	rotated := filepath.Join(dir, "he-ipv6-proxy.log.1")
 	if err := os.Rename(cfg.Path(), rotated); err != nil {
 		t.Fatalf("rename: %v", err)
 	}
@@ -76,7 +76,7 @@ func TestFileLoggingDisabled(t *testing.T) {
 	for _, cfg := range []config.LogConfig{
 		{Level: "info"},
 		{Level: "info", Dir: dir},
-		{Level: "info", File: "light-proxy.log"},
+		{Level: "info", File: "he-ipv6-proxy.log"},
 	} {
 		sink, err := Open(cfg)
 		if err != nil {

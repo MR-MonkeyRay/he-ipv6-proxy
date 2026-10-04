@@ -38,9 +38,9 @@ jobs:
             goarch=${target#*/}
             archive="he-ipv6-proxy_${version}_${goos}_${goarch}.tar.gz"
             stage=$(mktemp -d)
-            GOOS=$goos GOARCH=$goarch go build -trimpath -ldflags="-s -w" -o "$stage/light-proxy" ./cmd/light-proxy
+            GOOS=$goos GOARCH=$goarch go build -trimpath -ldflags="-s -w" -o "$stage/he-ipv6-proxy" ./cmd/he-ipv6-proxy
             cp README.md config.example.toml "$stage/"
-            tar -C "$stage" -czf "dist/$archive" light-proxy README.md config.example.toml
+            tar -C "$stage" -czf "dist/$archive" he-ipv6-proxy README.md config.example.toml
             rm -rf "$stage"
           done
           (cd dist && sha256sum ./*.tar.gz > checksums.txt)

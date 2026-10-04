@@ -1,4 +1,4 @@
-// Command light-proxy is a dependency-light IPv6 source-rotating forward proxy.
+// Command he-ipv6-proxy is a dependency-light IPv6 source-rotating forward proxy.
 package main
 
 import (
@@ -23,12 +23,12 @@ import (
 	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/sysenv"
 )
 
-const usage = `light-proxy — IPv6 source-rotating forward proxy (plain HTTP + CONNECT)
+const usage = `he-ipv6-proxy — IPv6 source-rotating forward proxy (plain HTTP + CONNECT)
 
 usage:
-  light-proxy [run] [-c config.toml]       serve (default when no command is given)
-  light-proxy doctor [-c config.toml]      probe every prerequisite, print exact fixes
-  light-proxy env-setup [-c config.toml]   apply the guest-side AnyIP route (needs root)
+  he-ipv6-proxy [run] [-c config.toml]       serve (default when no command is given)
+  he-ipv6-proxy doctor [-c config.toml]      probe every prerequisite, print exact fixes
+  he-ipv6-proxy env-setup [-c config.toml]   apply the guest-side AnyIP route (needs root)
 
 flags:
   -c, --config path   TOML config file (default "config.toml")
@@ -57,7 +57,7 @@ func run(ctx context.Context, args []string) int {
 		cmd, args = args[0], args[1:]
 	}
 
-	fs := flag.NewFlagSet("light-proxy", flag.ContinueOnError)
+	fs := flag.NewFlagSet("he-ipv6-proxy", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
 	fs.Usage = func() { fmt.Fprint(os.Stderr, usage) }
 	cfgPath := fs.String("c", "config.toml", "path to the TOML config file")
@@ -77,7 +77,7 @@ func run(ctx context.Context, args []string) int {
 	case "env-setup":
 		return runEnvSetup(ctx, *cfgPath)
 	default:
-		fmt.Fprintf(os.Stderr, "light-proxy: unknown command %q\n\n%s", cmd, usage)
+		fmt.Fprintf(os.Stderr, "he-ipv6-proxy: unknown command %q\n\n%s", cmd, usage)
 		return exitConfig
 	}
 }
@@ -122,7 +122,7 @@ func runServe(ctx context.Context, cfgPath string) int {
 			for _, p := range ps {
 				fmt.Fprintln(os.Stderr, p.Line())
 			}
-			fmt.Fprintf(os.Stderr, "light-proxy: prerequisite check failed; see `light-proxy doctor -c %s`\n", cfgPath)
+			fmt.Fprintf(os.Stderr, "he-ipv6-proxy: prerequisite check failed; see `he-ipv6-proxy doctor -c %s`\n", cfgPath)
 			return exitSelfTest
 		}
 		log.Debug("prerequisite check passed")
@@ -218,6 +218,6 @@ func loadConfig(path string) (*config.Config, error) {
 }
 
 func fail(code int, err error) int {
-	fmt.Fprintf(os.Stderr, "light-proxy: %v\n", err)
+	fmt.Fprintf(os.Stderr, "he-ipv6-proxy: %v\n", err)
 	return code
 }
