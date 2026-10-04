@@ -14,7 +14,7 @@ import (
 	"net/http/httputil"
 	"strings"
 
-	"light-proxy/internal/config"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/config"
 )
 
 // DialFunc dials the upstream. run passes netx.Rotator.Dial; tests pass a plain

@@ -16,7 +16,7 @@ import (
 	"sync"
 	"testing"
 
-	"light-proxy/internal/config"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/config"
 )
 
 func testConfig() *config.Config {

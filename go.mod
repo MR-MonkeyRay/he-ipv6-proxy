@@ -1,4 +1,4 @@
-module light-proxy
+module github.com/MR-MonkeyRay/he-ipv6-proxy
 
 go 1.24
 

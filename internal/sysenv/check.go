@@ -11,8 +11,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"light-proxy/internal/config"
-	"light-proxy/internal/netx"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/config"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/netx"
 )
 
 // Probe is the outcome of one prerequisite check.

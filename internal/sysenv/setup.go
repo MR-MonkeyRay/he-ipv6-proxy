@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/exec"
 
-	"light-proxy/internal/config"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/config"
 )
 
 // EnvSetup applies the guest-side prerequisites idempotently. It needs root. It

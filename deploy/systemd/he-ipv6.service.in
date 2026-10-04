@@ -1,5 +1,5 @@
 [Unit]
-Description=HE 6in4 tunnel (light-proxy IPv6 egress)
+Description=HE 6in4 tunnel for light-proxy IPv6 egress
 Documentation=https://tunnelbroker.net/
 After=network-online.target systemd-networkd.service
 Wants=network-online.target
@@ -8,13 +8,11 @@ Before=light-proxy-envsetup.service light-proxy.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-# 幂等: 手工建过的隧道(阶段 0)先删掉再按 unit 重建
 ExecStartPre=-/usr/sbin/ip tunnel del he-ipv6
 ExecStart=/usr/sbin/modprobe sit
-ExecStart=/usr/sbin/ip tunnel add he-ipv6 mode sit remote 216.66.22.2 local 23.94.112.250 ttl 255
+ExecStart=/usr/sbin/ip tunnel add he-ipv6 mode sit remote __HE_SERVER_IPV4__ local __HE_CLIENT_IPV4__ ttl 255
 ExecStart=/usr/sbin/ip link set he-ipv6 up mtu 1480
-# nodad: 点对点隧道上 DAD 无意义, 跳过可避免地址处于 tentative 时源地址不可用
-ExecStart=/usr/sbin/ip -6 addr add 2001:470:7:34d::2/64 dev he-ipv6 nodad
+ExecStart=/usr/sbin/ip -6 addr add __HE_CLIENT_IPV6__ dev he-ipv6 nodad
 ExecStart=/usr/sbin/ip -6 route replace default dev he-ipv6
 ExecStop=-/usr/sbin/ip tunnel del he-ipv6
 

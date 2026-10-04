@@ -1,0 +1,14 @@
+[Unit]
+Description=light-proxy AnyIP local route for the egress pool
+Documentation=https://github.com/MR-MonkeyRay/he-ipv6-proxy
+After=network-online.target
+Wants=network-online.target
+Before=light-proxy.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/light-proxy env-setup -c /etc/light-proxy.toml
+
+[Install]
+WantedBy=multi-user.target

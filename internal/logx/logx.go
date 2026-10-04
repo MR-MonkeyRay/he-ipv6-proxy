@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"light-proxy/internal/config"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/config"
 )
 
 // Sink owns the log destinations of a running process.

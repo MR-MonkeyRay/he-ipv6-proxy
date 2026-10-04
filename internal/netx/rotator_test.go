@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"light-proxy/internal/dedup"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/dedup"
 )
 
 func testPrefix(t *testing.T) netip.Prefix {

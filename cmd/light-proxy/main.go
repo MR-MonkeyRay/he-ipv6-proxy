@@ -15,12 +15,12 @@ import (
 	"syscall"
 	"time"
 
-	"light-proxy/internal/config"
-	"light-proxy/internal/dedup"
-	"light-proxy/internal/logx"
-	"light-proxy/internal/netx"
-	"light-proxy/internal/proxy"
-	"light-proxy/internal/sysenv"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/config"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/dedup"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/logx"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/netx"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/proxy"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/sysenv"
 )
 
 const usage = `light-proxy — IPv6 source-rotating forward proxy (plain HTTP + CONNECT)

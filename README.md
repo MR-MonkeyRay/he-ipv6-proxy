@@ -1,4 +1,4 @@
-# light-proxy
+# he-ipv6-proxy
 
 轻量级 IPv6 源地址轮换 HTTP 正向代理:监听一个 IPv4 端口,用共享 Basic 凭据鉴权,对每个请求从配置的 IPv6 `/64` 中随机取一个**全新源地址**出站(24 小时内不重复)。
 
@@ -13,17 +13,21 @@
 
 ## 构建
 
+需要 Go 1.24 或更高版本。
+
 ```sh
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o light-proxy ./cmd/light-proxy
+make build
 ```
+
+生成的静态二进制位于 `bin/light-proxy`。
 
 ## 快速开始
 
 ```sh
-cp config.example.toml config.toml          # 至少改 network.ipv6_pool 与 auth.*
-sudo ./light-proxy env-setup -c config.toml # 应用客户机内 AnyIP 路由(幂等)
-./light-proxy doctor    -c config.toml      # 全绿后再启动
-./light-proxy run       -c config.toml
+cp config.example.toml config.toml              # 至少修改 network.ipv6_pool 与 auth.*
+sudo bin/light-proxy env-setup -c config.toml   # 应用客户机内 AnyIP 路由(幂等)
+bin/light-proxy doctor -c config.toml           # 全绿后再启动
+bin/light-proxy run -c config.toml
 ```
 
 ## 前置条件
@@ -134,50 +138,38 @@ WantedBy=multi-user.target
 
 ## 以 systemd 服务运行
 
-客户机/容器重启后 `local` 路由会消失,代理也不该在前台手工跑。两个 unit(`env-setup` 幂等,可重复执行):
+仓库在 `deploy/systemd/` 提供通用 unit，在 `scripts/install-systemd.sh` 提供安装脚本。安装目标固定，避免 systemd 依赖 Git 工作树：
 
-```ini
-# /etc/systemd/system/light-proxy-envsetup.service
-[Unit]
-Description=light-proxy AnyIP route for the egress pool
-Before=light-proxy.service
+| 内容 | 安装路径 |
+| --- | --- |
+| 二进制 | `/usr/local/bin/light-proxy` |
+| 配置 | `/etc/light-proxy.toml` |
+| 可选凭据环境文件 | `/etc/light-proxy.env` |
+| 工作及日志目录 | `/var/lib/light-proxy` |
 
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/local/bin/light-proxy env-setup -c /etc/light-proxy.toml
-
-[Install]
-WantedBy=multi-user.target
+```sh
+cp config.example.toml config.toml
+# 编辑 config.toml；如需把凭据移出配置，可在安装后创建 /etc/light-proxy.env
+make build
+sudo scripts/install-systemd.sh
 ```
 
-```ini
-# /etc/systemd/system/light-proxy.service
-[Unit]
-Description=light-proxy IPv6 source-rotating forward proxy
-After=network-online.target light-proxy-envsetup.service
-Wants=network-online.target
-Requires=light-proxy-envsetup.service
+安装脚本创建无登录用户 `light-proxy`，安装并启动 `light-proxy-envsetup.service` 与 `light-proxy.service`。代理本身无特权；只有一次性的 `env-setup` unit 以 root 身份恢复 AnyIP local 路由。
 
-[Service]
-ExecStart=/usr/local/bin/light-proxy run -c /etc/light-proxy.toml
-EnvironmentFile=-/etc/light-proxy.env     # LIGHTPROXY_AUTH_USER= / LIGHTPROXY_AUTH_PASS=
-Restart=on-failure
-User=light-proxy                          # 代理本身不需要特权:FREEBIND 免 root,监听端口 > 1024
-NoNewPrivileges=yes
-WorkingDirectory=/var/lib/light-proxy     # log.dir 的相对路径按它解析
-ProtectSystem=strict                      # 只读整个文件系统 → 日志目录必须显式放行
-ReadWritePaths=/var/lib/light-proxy/log
+凭据环境文件示例（权限应为 `0600`）：
 
-[Install]
-WantedBy=multi-user.target
+```sh
+LIGHTPROXY_AUTH_USER=alice
+LIGHTPROXY_AUTH_PASS=s3cret
 ```
 
-`ProtectSystem=strict` 下 `ReadWritePaths` 指向的目录要先建好并归运行用户所有(`install -d -o light-proxy /var/lib/light-proxy/log`),否则进程起不来(退出码 2)。`temp/install-systemd.sh` 会读配置里的 `log.dir` 自动建目录并把它填进 unit。
+使用 Hurricane Electric 6in4 时，先复制并填写 `deploy/systemd/he-ipv6.service.in` 的三个占位符，再将结果安装为 `/etc/systemd/system/he-ipv6.service`。该模板不包含机器地址；应用 unit 也不强制依赖特定隧道实现。
 
-`env-setup` 要改路由表所以必须 root,两个 unit 因此分开。
+`ProtectSystem=strict` 下日志目录必须预先存在且归 `light-proxy` 所有；安装脚本会创建 `/var/lib/light-proxy/log`。
 
-也可以不用 unit,直接声明式配第 1 条路由(`local` 类型路由落在 local 表):
+部署前也可运行 `sudo scripts/verify-egress.sh [config] [binary]`，它只执行 `env-setup` 和 `doctor`，不保存本机配置或凭据。
+
+也可以不用 unit，直接声明式配置第 1 条 `local` 路由：
 
 ```ini
 # 客户机 /etc/systemd/network/10-anyip.network
@@ -248,7 +240,7 @@ ip -6 route get <pool 内任意地址>   # via fe80::... dev br0
 ip -6 neigh show dev br0            # 客户机链路本地地址
 ```
 
-单元测试:`go test ./...`。
+项目检查：`make check`（运行 `go test ./...` 和 `go vet ./...`）。
 
 请求日志(每个请求一行,`src=` 就是本次的轮换源地址):
 
@@ -281,8 +273,8 @@ sed -n '/msg=request/p' log/light-proxy.log | sed -n '$p'
 每个请求一行(`slog` text),**同时**写 stdout 与 `<log.dir>/<log.file>`(默认 `log/light-proxy.log`,相对工作目录):
 
 ```
-time=2026-09-18T15:58:10Z level=INFO msg=request client=127.0.0.1:10206 method=GET target=api6.ipify.org path=/ status=200 bytes=34 src=2001:470:8:34d:b343:fa75:f465:428d dur=262.8ms
-time=2026-09-18T15:58:10Z level=INFO msg=connect client=127.0.0.1:10208 target=api6.ipify.org:443 status=200 src=2001:470:8:34d:ba38:3865:c4f9:8cc1 sent=720 received=5085 dur=487.8ms
+time=2026-09-18T15:58:10Z level=INFO msg=request client=127.0.0.1:10206 method=GET target=api6.ipify.org path=/ status=200 bytes=34 src=2001:db8:abcd:0:b343:fa75:f465:428d dur=262.8ms
+time=2026-09-18T15:58:10Z level=INFO msg=connect client=127.0.0.1:10208 target=api6.ipify.org:443 status=200 src=2001:db8:abcd:0:ba38:3865:c4f9:8cc1 sent=720 received=5085 dur=487.8ms
 ```
 
 | 字段 | 含义 |

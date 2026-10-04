@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"light-proxy/internal/dedup"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/dedup"
 )
 
 // ipv6Freebind is the Linux socket option IPV6_FREEBIND (include/uapi/linux/

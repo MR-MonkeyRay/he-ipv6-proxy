@@ -7,11 +7,14 @@ coverage.*
 
 # Local runtime configuration and artifacts
 /config.toml
-/temp/config.toml
-/temp/config.smoke.toml
-/temp/light-proxy
-/temp/log/
+/config.*.local.toml
+/bin/
+/light-proxy
+*.test
+*.out
+coverage.*
 *.log
+/temp/
 
 # Editor and OS metadata
 .DS_Store

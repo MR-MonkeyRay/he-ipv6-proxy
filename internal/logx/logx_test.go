@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"light-proxy/internal/config"
+	"github.com/MR-MonkeyRay/he-ipv6-proxy/internal/config"
 )
 
 func readFile(t *testing.T, path string) string {
