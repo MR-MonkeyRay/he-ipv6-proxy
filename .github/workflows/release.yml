@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build release assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build archives
+        env:
+          CGO_ENABLED: "0"
+        run: |
+          set -eu
+          version=${GITHUB_REF_NAME#v}
+          mkdir -p dist
+          for target in linux/amd64 linux/arm64; do
+            goos=${target%/*}
+            goarch=${target#*/}
+            archive="he-ipv6-proxy_${version}_${goos}_${goarch}.tar.gz"
+            stage=$(mktemp -d)
+            GOOS=$goos GOARCH=$goarch go build -trimpath -ldflags="-s -w" -o "$stage/light-proxy" ./cmd/light-proxy
+            cp README.md config.example.toml "$stage/"
+            tar -C "$stage" -czf "dist/$archive" light-proxy README.md config.example.toml
+            rm -rf "$stage"
+          done
+          (cd dist && sha256sum ./*.tar.gz > checksums.txt)
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --generate-notes --verify-tag
