@@ -1,0 +1,17 @@
+[Unit]
+Description=light-proxy AnyIP local route for the egress pool
+Documentation=file://__TEMP_DIR__/../README.md
+After=network-online.target he-ipv6.service
+Wants=network-online.target
+Requires=he-ipv6.service
+Before=light-proxy.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# 幂等: 缺哪条补哪条, 已有则跳过
+# 池从 __TEMP_DIR__/config.toml 的 network.ipv6_pool 读取
+ExecStart=__TEMP_DIR__/light-proxy env-setup -c __TEMP_DIR__/config.toml
+
+[Install]
+WantedBy=multi-user.target

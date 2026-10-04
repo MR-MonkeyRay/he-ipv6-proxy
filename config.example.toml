@@ -1,0 +1,37 @@
+# light-proxy example configuration.
+# Copy to config.toml and edit. Every key may be omitted; the documented
+# default applies.
+
+[server]
+listen = ":28888"                # listen address; default ":28888"
+read_header_timeout = "30s"      # time allowed to send request headers
+
+[network]
+ipv6_pool = "2001:db8:abcd::/64" # REQUIRED; must be a masked IPv6 /64
+dial_timeout = "10s"             # per upstream connect attempt
+idle_timeout = "60s"             # keep-alive idle timeout for client connections
+response_header_timeout = "30s"  # time allowed for upstream response headers
+
+[auth]
+enabled = true                   # false = open proxy; only on a trusted network
+user = "alice"
+pass = "s3cret"                  # override at runtime: LIGHTPROXY_AUTH_PASS
+
+[dedup]
+ttl = "24h"                      # source-address reuse window (in-memory)
+sweep_interval = "5m"            # expired-entry sweep interval
+
+[log]
+level = "info"                   # info|debug; debug also logs the rotated source per dial
+dir = "log"                      # log directory, relative to the working directory; "" = no file
+file = "light-proxy.log"         # file name inside dir; "" = no file, stdout only
+                                 # every line also goes to stdout; SIGHUP reopens the file
+                                 # (logrotate: rename + HUP, no restart needed)
+
+[runtime]
+selfcheck = true                 # fail-fast prerequisite check on `run`
+
+[doctor]
+test_target = ""                 # optional "[host]:port" IPv6 TCP target for a live dial;
+                                 # IPv6 needs brackets, e.g. "[2001:db8::1]:80".
+                                 # empty = skip, and the return path stays unverified
