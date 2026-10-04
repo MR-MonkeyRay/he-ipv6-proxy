@@ -17,4 +17,4 @@ vet:
 check: test vet
 
 clean:
-	rm -rf bin coverage.out
+	rm -rf bin dist coverage.out

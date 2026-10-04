@@ -1,6 +1,7 @@
 # Build outputs
-/light-proxy
 /bin/
+/dist/
+/light-proxy
 *.test
 *.out
 coverage.*
@@ -8,11 +9,6 @@ coverage.*
 # Local runtime configuration and artifacts
 /config.toml
 /config.*.local.toml
-/bin/
-/light-proxy
-*.test
-*.out
-coverage.*
 *.log
 /temp/
 
